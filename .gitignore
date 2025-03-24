@@ -1,0 +1,11 @@
+.gradle
+.project
+.classpath
+.settings
+bin/
+Saku-Forge_Client.launch
+run/
+build/
+build/libs
+libs/fastutil-core-8.5.15.jar
+libs/fastutil-8.5.11.jar
