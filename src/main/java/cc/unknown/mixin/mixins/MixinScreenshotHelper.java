@@ -32,12 +32,11 @@ public class MixinScreenshotHelper {
     @Shadow 
     private static int[] pixelValues;
     
-    @Inject(method = "saveScreenshot(Ljava/io/File;Ljava/lang/String;IILnet/minecraft/client/shader/Framebuffer;)Lnet/minecraft/util/IChatComponent;", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "saveScreenshot(Ljava/io/File;Ljava/lang/String;IILnet/minecraft/client/shader/Framebuffer;)Lnet/minecraft/util/IChatComponent;", at = @At("HEAD"), cancellable = true)
     private static void screenshotManager(File gameDirectory, String screenshotName, int width, int height, Framebuffer buffer, CallbackInfoReturnable<IChatComponent> cir) {
-    	AsyncScreenshot async = Sakura.instance.getModuleManager().getModule(AsyncScreenshot.class);
-    	
+        AsyncScreenshot async = Sakura.instance.getModuleManager().getModule(AsyncScreenshot.class);
+
         if (async.isEnabled()) {
-        	
             if (OpenGlHelper.isFramebufferEnabled()) {
                 width = buffer.framebufferTextureWidth;
                 height = buffer.framebufferTextureHeight;
@@ -61,13 +60,15 @@ public class MixinScreenshotHelper {
                 GL11.glReadPixels(0, 0, width, height, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, pixelBuffer);
             }
 
-            pixelBuffer.get(pixelValues);
+            pixelBuffer.rewind();
+            pixelBuffer.get(pixelValues, 0, scale);
+
             new AsyncScreenshots(width, height, pixelValues).start();
-            
-            cir.setReturnValue(null);
+
+            cir.setReturnValue(new ChatComponentText(""));
         }
     }
-    
+
     @Overwrite
     private static File getTimestampedPNGFileForDirectory(File gameDirectory) {
     	return AsyncScreenshots.getTimestampedPNGFileForDirectory();
