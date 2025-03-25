@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
@@ -131,5 +132,14 @@ public class PlayerUtil implements Accessor {
 
 	public static Block getBlock(double x, double y, double z) {
 		return mc.theWorld.getBlockState(new BlockPos(x, y, z)).getBlock();
+	}
+	
+	public static boolean isSword() {
+		if (mc.thePlayer.getCurrentEquippedItem() == null) {
+			return false;
+		} else {
+			Item item = mc.thePlayer.getCurrentEquippedItem().getItem();
+			return item instanceof ItemSword;
+		}
 	}
 }

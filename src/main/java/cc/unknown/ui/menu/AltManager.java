@@ -9,6 +9,8 @@ import java.awt.Color;
 import java.io.IOException;
 
 import cc.unknown.mixin.impl.IMinecraft;
+import cc.unknown.ui.menu.impl.Button;
+import cc.unknown.ui.menu.impl.TextField;
 import cc.unknown.util.alt.MicrosoftAccount;
 import cc.unknown.util.alt.UsernameGenerator;
 import cc.unknown.util.render.BackgroundUtil;

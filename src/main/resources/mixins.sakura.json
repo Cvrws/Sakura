@@ -55,7 +55,10 @@
 		"MixinBlockModelRenderer",
 		"MixinNBTTagString",
 		"MixinScreenshotHelper",
-		"MixinGuiSpectator"
+		"MixinGuiSpectator",
+		"MixinGuiNewChat",
+		"MixinChatLine",
+		"MixinRenderGlobal"
     	
     ]
 }

@@ -13,13 +13,13 @@ public class MultiBoolValue extends Value {
     private int index;
     private float animation;
 
-    public MultiBoolValue(String name, List<BoolValue> options, Module module, Supplier<Boolean> visible) {
+    public MultiBoolValue(String name, Module module, List<BoolValue> options, Supplier<Boolean> visible) {
         super(name, module, visible);
         this.options = new ArrayList<>(options);
         this.index = options.size();
     }
 
-    public MultiBoolValue(String name, List<BoolValue> options, Module module) {
+    public MultiBoolValue(String name, Module module, List<BoolValue> options) {
         super(name, module, () -> true);
         this.options = new ArrayList<>(options);
         this.index = options.size();
@@ -37,7 +37,7 @@ public class MultiBoolValue extends Value {
         this.options.stream()
             .filter(option -> option.getName().equalsIgnoreCase(name))
             .findFirst()
-            .ifPresent(option -> option.set(value)); // Evita `NullPointerException`
+            .ifPresent(option -> option.set(value));
     }
 
     public List<BoolValue> getToggled() {

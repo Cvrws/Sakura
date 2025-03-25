@@ -1,4 +1,4 @@
-package cc.unknown.ui.menu;
+package cc.unknown.ui.menu.impl;
 
 import java.awt.Color;
 

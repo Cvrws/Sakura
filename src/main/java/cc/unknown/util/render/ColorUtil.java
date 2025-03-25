@@ -59,6 +59,10 @@ public class ColorUtil {
         GL11.glColor4f(r, g, b, a);
     }
     
+	public static float getAlphaByInt(int color) {        
+        return (float)(color >> 24 & 255) / 255.0F;
+	}
+    
     public static Color colorSwitch(Color firstColor, Color secondColor, float time, int index, long timePerIndex, double speed) {
         return colorSwitch(firstColor, secondColor, time, index, timePerIndex, speed, 255.0D);
     }

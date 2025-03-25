@@ -16,15 +16,15 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 
 @ModuleInfo(name = "AutoClicker", category = Category.COMBAT)
 public class AutoClicker extends Module {
-		
-	private final ModeValue cpsRandomization = new ModeValue("Randomization", this, "PatternPlus", "None", "Simple", "Plus", "Extra", "Gaussian", "Deviation", "ButterFly", "Pattern", "PatternPlus");
-	private final SliderValue randomizeAmount = new SliderValue("Amount", this, 1.5f, 0f, 4f, 0.1f, () -> !cpsRandomization.is("None"));
-	
+			
 	private final SliderValue leftCps = new SliderValue("LeftCPS", this, 10, 1, 25);
+	private final SliderValue randomizeAmount = new SliderValue("Amount", this, 1.5f, 0f, 4f, 0.1f, () -> !this.randomization.is("Normal"));
 	private final BoolValue cpsMultiplicator = new BoolValue("CPSMultiplicator", this, false);
 	private final SliderValue multiplicator = new SliderValue("LeftMult", this, 10, 0, 300, cpsMultiplicator::get);
 	
 	private final BoolValue breakBlocks = new BoolValue("BreakBlocks", this, true);
+	private final ModeValue randomization = new ModeValue("Randomization", this, "Normal", "Normal", "Extra", "Extra+");
+
 
 	private final StopWatch stopWatch = new StopWatch();
 
@@ -50,7 +50,7 @@ public class AutoClicker extends Module {
 			
 			if (cpsMultiplicator.get()) {
 			    int totalCps = (int) leftCps.getValue() + (int) multiplicator.getValue();
-			    int delay = (int) RandomUtil.instance.randomization(cpsRandomization.getMode(), totalCps, randomizeAmount.getValue());
+			    int delay = (int) RandomUtil.instance.randomization(randomization.getMode(), totalCps, randomizeAmount.getValue());
 			    
 			    if (stopWatch.finished(delay)) {
 			    	PlayerUtil.leftClick(true);
@@ -58,7 +58,7 @@ public class AutoClicker extends Module {
 			    }
 			}
 			
-			if (stopWatch.finished(RandomUtil.instance.randomization(cpsRandomization.getMode(), (int) leftCps.getValue(), randomizeAmount.getValue()))) {
+			if (stopWatch.finished(RandomUtil.instance.randomization(randomization.getMode(), (int) leftCps.getValue(), randomizeAmount.getValue()))) {
 				PlayerUtil.leftClick(true);
 				stopWatch.reset();
 			}

@@ -1,5 +1,7 @@
 package cc.unknown.module.impl.combat;
 
+import java.util.Arrays;
+
 import org.lwjgl.input.Keyboard;
 
 import cc.unknown.event.Kisoji;
@@ -12,9 +14,9 @@ import cc.unknown.module.api.ModuleInfo;
 import cc.unknown.module.impl.move.NoClip;
 import cc.unknown.util.client.MathUtil;
 import cc.unknown.util.player.MoveUtil;
-import cc.unknown.util.player.PlayerUtil;
 import cc.unknown.util.value.impl.BoolValue;
 import cc.unknown.util.value.impl.ModeValue;
+import cc.unknown.util.value.impl.MultiBoolValue;
 import cc.unknown.util.value.impl.SliderValue;
 
 @ModuleInfo(name = "Velocity", category = Category.COMBAT)
@@ -23,78 +25,77 @@ public class Velocity extends Module {
     private int ticks = 0;
 
     private final ModeValue mode = new ModeValue("Mode", this, "Normal", "Jump", "Normal");
-    private final SliderValue chance = new SliderValue("Chance", this, 100, 0, 100);
-    private final SliderValue horizontal = new SliderValue("Horizontal", this, 100, 0, 100, () -> mode.is("Normal"));
-    private final SliderValue vertical = new SliderValue("Vertical", this, 100, 0, 100, () -> mode.is("Normal"));
-    private final SliderValue tickDelay = new SliderValue("TickDelay", this, 2, 0, 10, () -> mode.is("Normal"));
-
-    private final BoolValue liquidChecks = new BoolValue("LiquidChecks", this, true);
-    private final BoolValue onlyTarget = new BoolValue("OnlyTarget", this, true);
-    private final BoolValue onlyMove = new BoolValue("OnlyMove", this, true);
-    private final BoolValue disableS = new BoolValue("DisableOnPressS", this, true);
+    private final SliderValue chance = new SliderValue("Chance", this, 0.9f, 0f, 1f, 0.1f);
+    private final SliderValue horizontal = new SliderValue("Horizontal", this, 0.9f, 0f, 1f, 0.1f, () -> mode.is("Normal"));
+    private final SliderValue vertical = new SliderValue("Vertical", this, 0.9f, 0f, 1f, 0.1f, () -> mode.is("Normal"));
+    private final SliderValue tickDelay = new SliderValue("TickDelay", this, 2, 0, 10, 1, () -> mode.is("Normal"));
     
+	public final MultiBoolValue conditionals = new MultiBoolValue("Conditionals", this, Arrays.asList(
+			new BoolValue("LiquidCheck", true),
+			new BoolValue("OnlyTarget", true),
+			new BoolValue("OnlyMove", true),
+			new BoolValue("DisableOnPressS", true)));
+
     @Override
     public void onEnable() {
-    	ticks = 0;
+        ticks = 0;
     }
-    
+
     @Override
     public void onDisable() {
-    	ticks = 0;
+        ticks = 0;
     }
 
     @Kisoji
     public final Listener<TickForgeEvent> onPreTick = event -> {
-    	if (event.isPost()) return;
+        if (event.isPost()) return;
         if (mc.currentScreen != null || !mc.inGameHasFocus) return;
         if (isEnabled(NoClip.class)) return;
-        if (mode.is("Normal")) ticks++;
+        
+        if (mode.is("Normal")) {
+            ticks++;
+        }
     };
 
     @Kisoji
-    public final Listener<VelocityEvent.Post> onPostVelocity = event -> {
+    public final Listener<VelocityEvent> onPostVelocity = event -> {
         if (mode.is("Jump")) {
-            if (!shouldApplyVelocity()) return;
-
-            if (MathUtil.nextRandom(0, 100).intValue() < chance.getValue()) {
-            	PlayerUtil.jump(true);
-            }
+            mc.thePlayer.setJumping(mc.thePlayer.onGround);
+            System.out.println("pepegrillo");
         }
     };
 
     @Kisoji
     public final Listener<VelocityEvent> onPreUpdate = event -> {
-        if (mode.is("Normal")) {
-	    	if (ticks > tickDelay.getValue()) {
-	            applyVelocityReduction(event);
-	            ticks = 0;
-	        }
-	
-	        if (!shouldApplyVelocity()) return;
-	
-	        if (MathUtil.nextRandom(0, 100).intValue() < chance.getValue() + 1) {
-	            applyVelocityReduction(event);
-	            ticks = 0;
-	        }
+        if (!mode.is("Normal")) return;
+        
+        if (ticks > tickDelay.getValue()) {
+            applyVelocityReduction(event);
+            ticks = 0;
+        }
+
+        if (!shouldApplyVelocity()) return;
+
+        if (MathUtil.nextRandom(0, 100).intValue() < (chance.getValue() * 100) + 1) {
+            applyVelocityReduction(event);
+            ticks = 0;
         }
     };
 
     private boolean shouldApplyVelocity() {
-        if (mc.thePlayer.maxHurtTime <= 0 || mc.thePlayer.hurtTime != mc.thePlayer.maxHurtTime) return false;
-
-        if (onlyTarget.get() && (mc.objectMouseOver == null || mc.objectMouseOver.entityHit == null)) {
+        if (conditionals.isEnabled("OnlyTarget") && (mc.objectMouseOver == null || mc.objectMouseOver.entityHit == null)) {
             return false;
         }
 
-        if (onlyMove.get() && !MoveUtil.isMoving()) {
+        if (conditionals.isEnabled("OnlyMove") && !MoveUtil.isMoving()) {
             return false;
         }
 
-        if (liquidChecks.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava())) {
+        if (conditionals.isEnabled("LiquidCheck") && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava())) {
             return false;
         }
 
-        if (disableS.get() && Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode())) {
+        if (conditionals.isEnabled("DisableOnPressS") && Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode())) {
             return false;
         }
 
@@ -102,8 +103,11 @@ public class Velocity extends Module {
     }
 
     private void applyVelocityReduction(VelocityEvent event) {
-        event.setX(event.getX() * horizontal.getValue() / 100.0);
-        event.setY(event.getY() * vertical.getValue() / 100.0);
-        event.setZ(event.getZ() * horizontal.getValue() / 100.0);
+        double h = horizontal.getValue() * 100;
+        double v = vertical.getValue() * 100;
+
+        event.setX(event.getX() * (h / 100.0));
+        event.setY(event.getY() * (v / 100.0));
+        event.setZ(event.getZ() * (h / 100.0));
     }
 }

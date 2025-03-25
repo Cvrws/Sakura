@@ -14,8 +14,8 @@ import net.minecraft.util.MovingObjectPosition;
 @ModuleInfo(name = "AutoTool", category = Category.PLAYER)
 public class AutoTool extends Module {
 
-    public final BoolValue spoof = new BoolValue("Spoof Slot", this, true);
-    public final BoolValue switchBack = new BoolValue("Switch Back", this, true, spoof::get);
+    public final BoolValue spoof = new BoolValue("SpoofSlot", this, true);
+    public final BoolValue switchBack = new BoolValue("SwitchBack", this, true, spoof::get);
     private int oldSlot;
     public boolean wasDigging;
     

@@ -1,5 +1,6 @@
 package cc.unknown.module.impl.combat;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +21,7 @@ import cc.unknown.util.player.RotationUtil;
 import cc.unknown.util.structure.Vector2f;
 import cc.unknown.util.value.impl.BoolValue;
 import cc.unknown.util.value.impl.ModeValue;
+import cc.unknown.util.value.impl.MultiBoolValue;
 import cc.unknown.util.value.impl.SliderValue;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
@@ -41,21 +43,20 @@ public class AimAssist extends Module {
 	private final SliderValue fovRange = new SliderValue("Angle", this, 75, 15, 360, 5);
 	private final SliderValue range = new SliderValue("Range", this, 3.4f, 1.0f, 6.0f, 0.05f);
 
-	private final BoolValue weaponOnly = new BoolValue("OnlyWeapons", this, false);
-	private final BoolValue ignoreInvis = new BoolValue("IgnoreInvisible", this, true);
-	private final BoolValue ignoreFriends = new BoolValue("IgnoreFriends", this, true);
-	private final BoolValue lockTarget = new BoolValue("LockTarget", this, true);
-
-	private final BoolValue addSmoothness = new BoolValue("Smoothness", this, false);
-	private final BoolValue increaseStrafe = new BoolValue("IncreaseStrafe", this, false);
-
-	private final BoolValue visibility = new BoolValue("VisibilityCheck", this, false);
-	private final BoolValue clickAim = new BoolValue("RequireClicking", this, false);
-	private final BoolValue breakBlocks = new BoolValue("BreakBlocks", this, false);
-
 	private final BoolValue randomization = new BoolValue("Randomization", this, false);
 	private final SliderValue randomYaw = new SliderValue("RandomYaw", this, 6.5f, 1.0f, 20.0f, 0.5f, randomization::get);
 	private final SliderValue randomPitch = new SliderValue("RandomPitch", this, 14.5F, 1.5F, 40.5F, 0.5F, randomization::get);
+	
+	public final MultiBoolValue conditionals = new MultiBoolValue("Conditionals", this, Arrays.asList(
+			new BoolValue("OnlyWeapons", false),
+			new BoolValue("IgnoreInvisibles", true),
+			new BoolValue("IgnoreFriends", true),
+			new BoolValue("LockTarget", true),
+			new BoolValue("IncreaseStrafe", false),
+			new BoolValue("Smoothness", false),
+			new BoolValue("VisibilityCheck", false), 
+			new BoolValue("RequireClicking", true), 
+			new BoolValue("BreakBlocks", false)));
 	
 	private final Set<EntityPlayer> lockedTargets = new HashSet<>();
 	public EntityPlayer target;
@@ -64,8 +65,8 @@ public class AimAssist extends Module {
 	public final Listener<MotionEvent.Pre> onPreMotion = event -> {
 		if (mc.currentScreen != null || !mc.inGameHasFocus) return;
 
-		if (!weaponOnly.get() || InventoryUtil.isSword()) {
-			if (breakBlocks.get()) {
+		if (!conditionals.isEnabled("OnlyWeapons") || InventoryUtil.isSword()) {
+			if (conditionals.isEnabled("BreakBlocks")) {
 				BlockPos blockPos = mc.objectMouseOver.getBlockPos();
 
 				if (blockPos != null) {
@@ -76,13 +77,13 @@ public class AimAssist extends Module {
 				}
 			}
 
-			if (!clickAim.get() || Mouse.isButtonDown(0)) {
+			if (!conditionals.isEnabled("RequireClicking") || Mouse.isButtonDown(0)) {
 				target = getTarget();
 
 				if (target != null) {
 					Vector2f rotations = getRotations(target, event.getYaw(), event.getPitch());
 
-					if (increaseStrafe.get()) {
+					if (conditionals.isEnabled("IncreaseStrafe")) {
 						if (mc.thePlayer.moveStrafing != 0) {
 							float value = 0.5f;
 							rotations.x += value;
@@ -100,7 +101,7 @@ public class AimAssist extends Module {
 	
     @Kisoji
     public final Listener<AttackForgeEvent> onAttack = event -> {
-    	if (lockTarget.get() && event.getEvent().entityLiving instanceof EntityPlayer) {
+    	if (conditionals.isEnabled("LockTarget") && event.getEvent().entityLiving instanceof EntityPlayer) {
     	    EntityPlayer attackedTarget = (EntityPlayer) event.getEvent().entityLiving;
     	    if (isValidTarget(attackedTarget)) {
     	        lockedTargets.add(attackedTarget);
@@ -126,7 +127,7 @@ public class AimAssist extends Module {
 			rotations.y += randomPitch;
 		}
 
-		if (addSmoothness.get()) {
+		if (conditionals.isEnabled("Smoothness")) {
 			float endRot = Math.round(rotations.x - yaw);
 
 			if (endRot > fovRange.getValue() / 2.0F) {
@@ -227,9 +228,9 @@ public class AimAssist extends Module {
 	private boolean isValidTarget(EntityPlayer target) {
 	    return target != mc.thePlayer &&
 	           !target.isDead &&
-	           (!visibility.get() || mc.thePlayer.canEntityBeSeen(target)) &&
-	           (!ignoreInvis.get() || !target.isInvisible()) &&
-	           (!ignoreFriends.get() || !FriendUtil.isFriend(target)) &&
+	           (!conditionals.isEnabled("VisibilityCheck") || mc.thePlayer.canEntityBeSeen(target)) &&
+	           (!conditionals.isEnabled("IgnoreInvisibles") || !target.isInvisible()) &&
+	           (!conditionals.isEnabled("IgnoreFriends") || !FriendUtil.isFriend(target)) &&
 	           (!isEnabled(Teams.class) || !PlayerUtil.isTeam(target, true, true)) &&
 	           PlayerUtil.inRange(target, range.getValue()) &&
 	           PlayerUtil.isInFov(target, fovRange.getValue());

@@ -15,6 +15,8 @@ import static org.lwjgl.opengl.GL11.glLineWidth;
 import static org.lwjgl.opengl.GL11.glVertex2d;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.lwjgl.opengl.GL11;
@@ -24,6 +26,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -31,6 +34,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
@@ -40,6 +45,93 @@ public final class RenderUtil implements Accessor {
 
 	private static final Frustum FRUSTUM = new Frustum();
 	public static final Pattern COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-OR]");
+	
+	public static void drawRect(double left, double top, double right, double bottom, int color) {
+		double j;
+		if (left < right) {
+			j = left;
+			left = right;
+			right = j;
+		}
+
+		if (top < bottom) {
+			j = top;
+			top = bottom;
+			bottom = j;
+		}
+
+		float f3 = (float) (color >> 24 & 255) / 255.0F;
+		float f = (float) (color >> 16 & 255) / 255.0F;
+		float f1 = (float) (color >> 8 & 255) / 255.0F;
+		float f2 = (float) (color & 255) / 255.0F;
+		Tessellator tessellator = Tessellator.getInstance();
+		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		GlStateManager.enableBlend();
+		GlStateManager.disableTexture2D();
+		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+		GlStateManager.color(f, f1, f2, f3);
+		worldrenderer.begin(7, DefaultVertexFormats.POSITION);
+		worldrenderer.pos(left, bottom, 0.0).endVertex();
+		worldrenderer.pos(right, bottom, 0.0).endVertex();
+		worldrenderer.pos(right, top, 0.0).endVertex();
+		worldrenderer.pos(left, top, 0.0).endVertex();
+		tessellator.draw();
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
+	}
+	
+	public static void roundedRect(final double x, final double y, final double width, final double height,
+			final double radius, final int color) {
+		drawRoundedRect(x, y, width - x, height - y, radius, color);
+	}
+
+	private static void drawRoundedRect(double x, double y, final double width, final double height, final double radius,
+			final int color) {
+		GlStateManager.enableBlend();
+		GlStateManager.disableTexture2D();
+		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+		double x2 = x + width;
+		double y2 = y + height;
+		final float f = (color >> 24 & 0xFF) / 255.0f;
+		final float f2 = (color >> 16 & 0xFF) / 255.0f;
+		final float f3 = (color >> 8 & 0xFF) / 255.0f;
+		final float f4 = (color & 0xFF) / 255.0f;
+		GL11.glPushAttrib(0);
+		GL11.glScaled(0.5, 0.5, 0.5);
+		x *= 2.0;
+		y *= 2.0;
+		x2 *= 2.0;
+		y2 *= 2.0;
+		GL11.glDisable(3553);
+		GL11.glColor4f(f2, f3, f4, f);
+		GL11.glEnable(2848);
+		GL11.glBegin(9);
+		for (int i = 0; i <= 90; i += 3) {
+			GL11.glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0) * (radius * -1.0),
+					y + radius + Math.cos(i * Math.PI / 180.0) * (radius * -1.0));
+		}
+		for (int i = 90; i <= 180; i += 3) {
+			GL11.glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0) * (radius * -1.0),
+					y2 - radius + Math.cos(i * Math.PI / 180.0) * (radius * -1.0));
+		}
+		for (int i = 0; i <= 90; i += 3) {
+			GL11.glVertex2d(x2 - radius + Math.sin(i * Math.PI / 180.0) * radius,
+					y2 - radius + Math.cos(i * Math.PI / 180.0) * radius);
+		}
+		for (int i = 90; i <= 180; i += 3) {
+			GL11.glVertex2d(x2 - radius + Math.sin(i * Math.PI / 180.0) * radius,
+					y + radius + Math.cos(i * Math.PI / 180.0) * radius);
+		}
+		GL11.glEnd();
+		GL11.glEnable(3553);
+		GL11.glDisable(2848);
+		GL11.glEnable(3553);
+		GL11.glScaled(2.0, 2.0, 2.0);
+		GL11.glPopAttrib();
+		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
+	}
 
 	public static void drawRect(float left, float top, float width, float height, Color color) {
 		drawRect(left, top, width, height, color.getRGB());
@@ -62,8 +154,64 @@ public final class RenderUtil implements Accessor {
 		Gui.drawRect((int)left, (int)top, (int)right, (int)bottom, color);
 	}
 	
-	public static void image(final ResourceLocation imageLocation, final int x, final int y, final int width,
-			final int height) {
+    public static void renderItemStack(ItemStack stack, double x, double y, float scale) {
+        renderItemStack(stack, x, y, scale, false);
+    }
+
+    public static void renderItemStack(ItemStack stack, double x, double y, float scale, boolean enchantedText) {
+        renderItemStack(stack, x, y, scale, enchantedText, scale);
+    }
+
+    public static void renderItemStack(ItemStack stack, double x, double y, float scale, boolean enchantedText, float textScale) {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, x);
+        GlStateManager.scale(scale, scale, scale);
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        RenderHelper.enableGUIStandardItemLighting();
+        mc.getRenderItem().renderItemAndEffectIntoGUI(stack, 0, 0);
+        mc.getRenderItem().renderItemOverlays(mc.fontRendererObj, stack, 0, 0);
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+    }
+
+    public static void renderItemStack(EntityPlayer target, float x, float y, float scale, boolean enchantedText, float textScale,boolean bg,boolean info) {
+        List<ItemStack> items = new ArrayList<>();
+        if (target.getHeldItem() != null) {
+            items.add(target.getHeldItem());
+        }
+        for (int index = 3; index >= 0; index--) {
+            ItemStack stack = target.inventory.armorInventory[index];
+            if (stack != null) {
+                items.add(stack);
+            }
+        }
+        float i = x;
+
+        for (ItemStack stack : items) {
+            if(bg)
+                drawRect(i,y,16 * scale,16 * scale,new Color(0,0,0,150).getRGB());
+            renderItemStack(stack, i, y, scale, enchantedText, textScale);
+            i += 16;
+        }
+    }
+
+    public static void renderItemStack(EntityPlayer target, float x, float y, float scale,boolean bg,boolean info) {
+        renderItemStack(target,x,y,scale,false,0,bg,info);
+    }
+
+    public static void renderItemStack(EntityPlayer target, float x, float y, float scale, float textScale) {
+        renderItemStack(target,x,y,scale,true,textScale,false,false);
+    }
+
+    public static void renderItemStack(EntityPlayer target, float x, float y, float scale) {
+        renderItemStack(target,x,y,scale,scale);
+    }
+	
+	public static void image(final ResourceLocation imageLocation, final int x, final int y, final int width, final int height) {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 		GlStateManager.enableBlend();
@@ -442,5 +590,18 @@ public final class RenderUtil implements Accessor {
             return new Framebuffer(mc.displayWidth, mc.displayHeight, depth);
         }
         return framebuffer;
+    }
+    
+    public static void drawScaledCustomSizeModalRect(double x, double y, float u, float v, int uWidth, int vHeight, double width, double height, float tileWidth, float tileHeight) {
+        float f = 1.0F / tileWidth;
+        float f1 = 1.0F / tileHeight;
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
+        worldrenderer.pos((double)x, (double)(y + height), 0.0D).tex((double)(u * f), (double)((v + (float)vHeight) * f1)).endVertex();
+        worldrenderer.pos((double)(x + width), (double)(y + height), 0.0D).tex((double)((u + (float)uWidth) * f), (double)((v + (float)vHeight) * f1)).endVertex();
+        worldrenderer.pos((double)(x + width), (double)y, 0.0D).tex((double)((u + (float)uWidth) * f), (double)(v * f1)).endVertex();
+        worldrenderer.pos((double)x, (double)y, 0.0D).tex((double)(u * f), (double)(v * f1)).endVertex();
+        tessellator.draw();
     }
 }

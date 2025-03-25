@@ -3,41 +3,58 @@ package cc.unknown.event.impl;
 import cc.unknown.event.Event;
 
 public class VelocityEvent implements Event {
-	private double x, y, z;
+    private double x, y, z;
+    private final VelocityType velocityType;
 
-	public VelocityEvent(double x, double y, double z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
-	
-	public double getX() {
-		return x;
-	}
+    public VelocityEvent(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.velocityType = VelocityType.PRE;
+    }
 
-	public void setX(double x) {
-		this.x = x;
-	}
+    public VelocityEvent() {
+        this.velocityType = VelocityType.POST;
+    }
 
-	public double getY() {
-		return y;
-	}
+    public boolean isPre() {
+        return velocityType == VelocityType.PRE;
+    }
 
-	public void setY(double y) {
-		this.y = y;
-	}
+    public boolean isPost() {
+        return velocityType == VelocityType.POST;
+    }
 
-	public double getZ() {
-		return z;
-	}
+    public double getX() {
+        return x;
+    }
 
-	public void setZ(double z) {
-		this.z = z;
-	}
+    public void setX(double x) {
+        if (isPre()) this.x = x;
+    }
 
-	public static class Post extends VelocityEvent {
-		public Post(double x, double y, double z) {
-			super(x, y, z);
-		}
-	}
+    public double getY() {
+        return y;
+    }
+
+    public void setY(double y) {
+        if (isPre()) this.y = y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    public void setZ(double z) {
+        if (isPre()) this.z = z;
+    }
+
+    public VelocityType getVelocityType() {
+        return velocityType;
+    }
+
+    public enum VelocityType {
+        PRE, POST;
+    }
 }
+

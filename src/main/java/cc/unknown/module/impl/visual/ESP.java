@@ -36,9 +36,9 @@ import net.minecraft.entity.player.EntityPlayer;
 @ModuleInfo(name = "ESP", category = Category.VISUALS)
 public class ESP extends Module {    
 
-	private final BoolValue colorTeams = new BoolValue("Color Teams", this, false);
-	private final BoolValue checkInvis = new BoolValue("Show Invisibles", this, false);
-	private final BoolValue redDamage = new BoolValue("Red on Damage", this, false);
+	private final BoolValue colorTeams = new BoolValue("ColorTeams", this, false);
+	private final BoolValue checkInvis = new BoolValue("ShowInvisibles", this, false);
+	private final BoolValue redDamage = new BoolValue("RedOnDamage", this, false);
 	
     public final SliderValue skeletalWidth = new SliderValue("Width", this, 0.5f, 0.1f, 5f, 0.1f);
 	

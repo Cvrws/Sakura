@@ -17,7 +17,7 @@ import cc.unknown.util.value.impl.SliderValue;
 
 @ModuleInfo(name = "Interface", category = Category.VISUALS)
 public class Interface extends Module {
-	public final MultiBoolValue elements = new MultiBoolValue("Elements", Arrays.asList(
+	public final MultiBoolValue elements = new MultiBoolValue("Elements", this, Arrays.asList(
 			new BoolValue("Watermark", true),
 			new BoolValue("IGN", true),
 			new BoolValue("FPS", true),
@@ -26,35 +26,34 @@ public class Interface extends Module {
 			new BoolValue("PlayerPosition", true),
 			new BoolValue("ArrayList", true), 
 			new BoolValue("PotionStatus", true), 
-			new BoolValue("Inventory", true)),
-			this);
+			new BoolValue("Inventory", true)));
 
-	public final BoolValue cFont = new BoolValue("Custom Font", this, true, () -> elements.isEnabled("ArrayList"));
-	public final ModeValue fontMode = new ModeValue("Font Mode", this, () -> cFont.canDisplay() && cFont.get(), "Roboto", "Comfortaa", "Consolas", "Roboto", "Verdana", "SFUI");
-	public final SliderValue fontSize = new SliderValue("Font Size", this, 18, 15, 30, cFont::get);
-	public final SliderValue textHeight = new SliderValue("Text Height", this, 5, 0, 15, () -> elements.isEnabled("ArrayList"));
+	public final BoolValue cFont = new BoolValue("CustomFont", this, true, () -> elements.isEnabled("ArrayList"));
+	public final ModeValue fontMode = new ModeValue("FontMode", this, () -> cFont.canDisplay() && cFont.get(), "Roboto", "Comfortaa", "Consolas", "Roboto", "Verdana", "SFUI");
+	public final SliderValue fontSize = new SliderValue("FontSize", this, 18, 15, 30, cFont::get);
+	public final SliderValue textHeight = new SliderValue("TextHeight", this, 5, 0, 15, () -> elements.isEnabled("ArrayList"));
 
-	public final BoolValue armorBg = new BoolValue("Armor Background", this, true, () -> elements.isEnabled("Armor"));
-	public final BoolValue armorEnchanted = new BoolValue("Armor Enchanted", this, true, () -> elements.isEnabled("Armor"));
-	public final BoolValue armorInfo = new BoolValue("Armor Info", this, true, () -> elements.isEnabled("Armor"));
+	public final BoolValue armorBg = new BoolValue("ArmorBackground", this, true, () -> elements.isEnabled("Armor"));
+	public final BoolValue armorEnchanted = new BoolValue("ArmorEnchanted", this, true, () -> elements.isEnabled("Armor"));
+	public final BoolValue armorInfo = new BoolValue("ArmorInfo", this, true, () -> elements.isEnabled("Armor"));
 
-	public final ModeValue color = new ModeValue("Arraylist Color", this, "Hyper", "Rainbow", "Fade", "Slinky", "Hyper", "Magic", "Neon", "Astolfo", "Primavera", "Ocean", "Blaze", "Ghoul", "Custom");
-	public final ColorValue mainColor = new ColorValue("Main Color", new Color(128, 128, 255), this, () -> color.is("Custom") || color.is("Fade"));
-	public final ColorValue secondColor = new ColorValue("Second Color", new Color(128, 255, 255), this, () -> color.is("Fade"));
-	public final SliderValue fadeSpeed = new SliderValue("Fade Speed", this, 1, 1, 10, 1, () -> color.is("Fade"));
+	public final ModeValue color = new ModeValue("ArraylistColor", this, "Hyper", "Rainbow", "Fade", "Slinky", "Hyper", "Magic", "Neon", "Astolfo", "Primavera", "Ocean", "Blaze", "Ghoul", "Custom");
+	public final ColorValue mainColor = new ColorValue("MainColor", new Color(128, 128, 255), this, () -> color.is("Custom") || color.is("Fade"));
+	public final ColorValue secondColor = new ColorValue("SecondColor", new Color(128, 255, 255), this, () -> color.is("Fade"));
+	public final SliderValue fadeSpeed = new SliderValue("FadeSpeed", this, 1, 1, 10, 1, () -> color.is("Fade"));
 
 	public final BoolValue background = new BoolValue("Background", this, true, () -> elements.isEnabled("ArrayList"));
-	public final ModeValue bgColor = new ModeValue("Background Color", this, background::get, "Dark", "Synced", "Custom", "Synced", "Dark");
-	private final ColorValue bgCustomColor = new ColorValue("Custom Color", new Color(32, 32, 64), this, () -> bgColor.canDisplay() && bgColor.is("Custom"));
-	private final SliderValue bgAlpha = new SliderValue("Background Alpha", this, 100, 1, 255, 1);
+	public final ModeValue bgColor = new ModeValue("BackgroundColor", this, background::get, "Dark", "Synced", "Custom", "Synced", "Dark");
+	private final ColorValue bgCustomColor = new ColorValue("CustomColor", new Color(32, 32, 64), this, () -> bgColor.canDisplay() && bgColor.is("Custom"));
+	private final SliderValue bgAlpha = new SliderValue("BackgroundAlpha", this, 100, 1, 255, 1);
 	
-    public final BoolValue customScoreboard = new BoolValue("Custom Scoreboard", this, false);
-    public final BoolValue hideScoreboard = new BoolValue("Hide Scoreboard", this, false,() -> !customScoreboard.get());
-    public final BoolValue hideScoreRed = new BoolValue("Hide Scoreboard Red Points", this, true, customScoreboard::get);
-    public final BoolValue fixHeight = new BoolValue("Fix Height", this, true, customScoreboard::get);
-    public final BoolValue hideBackground = new BoolValue("Hide Background", this, true, customScoreboard::get);
+    public final BoolValue customScoreboard = new BoolValue("CustomScoreboard", this, false);
+    public final BoolValue hideScoreboard = new BoolValue("HideScoreboard", this, false,() -> !customScoreboard.get());
+    public final BoolValue hideScoreRed = new BoolValue("HideScoreboardRedPoints", this, true, customScoreboard::get);
+    public final BoolValue fixHeight = new BoolValue("FixHeight", this, true, customScoreboard::get);
+    public final BoolValue hideBackground = new BoolValue("HideBackground", this, true, customScoreboard::get);
     
-    public final BoolValue wavey = new BoolValue("Wavey Cape", this, true);
+    public final BoolValue wavey = new BoolValue("WaveyCape", this, true);
 
 	public int getRainbow(int counter) {
 		return Color.HSBtoRGB(getRainbowHSB(counter)[0], getRainbowHSB(counter)[1], getRainbowHSB(counter)[2]);

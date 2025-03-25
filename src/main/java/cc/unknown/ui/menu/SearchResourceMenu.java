@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import cc.unknown.ui.menu.impl.TextField;
 import cc.unknown.util.Accessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

@@ -68,28 +68,34 @@ public class MixinNetHandlerPlayClient implements INetHandlerPlayClient, Accesso
 	
 	@Inject(method = "handleEntityVelocity", at = @At("HEAD"), cancellable = true)
 	private void handleEntityVelocity(S12PacketEntityVelocity packetIn, final CallbackInfo ci) {
-		PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
-		Entity entity = this.clientWorldController.getEntityByID(packetIn.getEntityID());
+	    PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
+	    Entity entity = this.clientWorldController.getEntityByID(packetIn.getEntityID());
 
-		if (entity != null) {
-			VelocityEvent knockBack = new VelocityEvent((double) packetIn.getMotionX() / 8000.0D, (double) packetIn.getMotionY() / 8000.0D, (double) packetIn.getMotionZ() / 8000.0D);
-			if (entity.getEntityId() == this.gameController.thePlayer.getEntityId()) {
-				Sakura.instance.getEventBus().handle(knockBack);
-			}
-			entity.setVelocity(knockBack.getX(), knockBack.getY(), knockBack.getZ());
-		}
-		
-		ci.cancel();
+	    if (entity != null) {
+	        VelocityEvent knockBack = new VelocityEvent(
+	            (double) packetIn.getMotionX() / 8000.0D, 
+	            (double) packetIn.getMotionY() / 8000.0D, 
+	            (double) packetIn.getMotionZ() / 8000.0D
+	        );
+
+	        if (entity.getEntityId() == this.gameController.thePlayer.getEntityId()) {
+	            Sakura.instance.getEventBus().handle(knockBack);
+	        }
+
+	        entity.setVelocity(knockBack.getX(), knockBack.getY(), knockBack.getZ());
+	    }
+	    
+	    ci.cancel();
 	}
 	
-    @Inject(method = "handleEntityVelocity", at = @At("RETURN"))
-    public void onPostHandleEntityVelocity(S12PacketEntityVelocity packetIn, CallbackInfo ci) {
-        if (!isInGame()) return;
+	@Inject(method = "handleEntityVelocity", at = @At("RETURN"))
+	public void onPostHandleEntityVelocity(S12PacketEntityVelocity packetIn, CallbackInfo ci) {
+	    if (!isInGame()) return;
 
-        if (packetIn.getEntityID() == this.gameController.thePlayer.getEntityId()) {
-        	Sakura.instance.getEventBus().handle(new VelocityEvent.Post((double) packetIn.getMotionX() / 8000.0D, (double) packetIn.getMotionY() / 8000.0D, (double) packetIn.getMotionZ() / 8000.0D));
-        }
-    }
+	    if (packetIn.getEntityID() == this.gameController.thePlayer.getEntityId()) {
+	        Sakura.instance.getEventBus().handle(new VelocityEvent());
+	    }
+	}
 	
 	@Redirect(method = "handleUpdateSign", slice = @Slice(from = @At(value = "CONSTANT", args = "stringValue=Unable to locate sign at ", ordinal = 0)), at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;addChatMessage(Lnet/minecraft/util/IChatComponent;)V", ordinal = 0))
 	private void patcher$removeDebugMessage(EntityPlayerSP instance, IChatComponent component) { }

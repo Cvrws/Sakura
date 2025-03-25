@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import cc.unknown.ui.drag.Drag;
 import cc.unknown.util.render.FontUtil;
+import cc.unknown.util.render.RenderUtil;
 import cc.unknown.util.render.RoundedUtil;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.item.ItemStack;
@@ -41,7 +42,7 @@ public class InventoryDraggable extends Drag {
 
         for (int i = 9; i < 36; ++i) {
             ItemStack slot = mc.thePlayer.inventory.getStackInSlot(i);
-            mc.getRenderItem().renderItemOverlays(mc.fontRendererObj, slot, (int) startX, (int) startY);
+            RenderUtil.renderItemStack(slot, startX, startY, 0.80F);
 
             startX += itemWidth + columnSpacing;
 

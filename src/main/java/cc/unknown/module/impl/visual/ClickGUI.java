@@ -15,7 +15,7 @@ import cc.unknown.util.value.impl.SliderValue;
 @ModuleInfo(name = "ClickGUI",  category = Category.VISUALS, key = Keyboard.KEY_RSHIFT)
 public final class ClickGUI extends Module {
 
-	public final BoolValue moveGui = new BoolValue("Move Gui", this, true);
+	public final BoolValue moveGui = new BoolValue("MoveGui", this, true);
 	public final BoolValue roundedOutline = new BoolValue("RoundedOutline", this, false);
 	public final SliderValue outline = new SliderValue("Outline", this, 0.01f, 0.01f, 1f, 0.01f, () -> roundedOutline.get());
 	public final BoolValue roundedButtons = new BoolValue("RoundedButtons", this, false);

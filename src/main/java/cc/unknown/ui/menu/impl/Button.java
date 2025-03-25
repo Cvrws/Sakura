@@ -1,4 +1,4 @@
-package cc.unknown.ui.menu;
+package cc.unknown.ui.menu.impl;
 
 import java.awt.Color;
 
@@ -40,7 +40,7 @@ public class Button extends GuiButton {
 		if (Sakura.instance.getModuleManager().getModule(MainMenu.class).roundedButtons.get()) {
 			RoundedUtil.drawRound(x, y, width, height, 8, new Color(1, 1, 1, 150));
 		} else {
-			RenderUtil.drawRect(x, y, width, height, new Color(1, 1, 1, 150));
+			RenderUtil.roundedRect(x - size, y - size, x + width + size, y + height + size, 6.0, new Color(1, 1, 1, 150).getRGB());
 		}
 
 		int textWidth = (int) FontUtil.getFontRenderer("comfortaa.ttf", 16).getStringWidth(text);

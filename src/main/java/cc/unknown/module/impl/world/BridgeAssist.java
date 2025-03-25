@@ -23,13 +23,13 @@ import net.minecraft.world.WorldSettings;
 @ModuleInfo(name = "BridgeAssist", category = Category.WORLD)	
 public class BridgeAssist extends Module {
     
-    private final SliderValue delay = new SliderValue("Delay (ms)", this, 140, 0, 200, 1);
-    private final BoolValue checkAngle = new BoolValue("Check Angle", this, false);
+	private final SliderValue delay = new SliderValue("Delay(ticks)", this, 1, 0, 5, 1);
+    private final BoolValue checkAngle = new BoolValue("CheckAngle", this, false);
     private final BoolValue legit = new BoolValue("Legitimize", this, true);
-    private final BoolValue holdShift = new BoolValue("Require Sneak", this, true);
-    private final BoolValue slotSwap = new BoolValue("Block Switching", this, false);
-    private final BoolValue blocksOnly = new BoolValue("Only Blocks", this, true);
-    private final BoolValue backwards = new BoolValue("Only Backwards", this, true);
+    private final BoolValue holdShift = new BoolValue("RequireSneak", this, true);
+    private final BoolValue slotSwap = new BoolValue("BlockSwitching", this, false);
+    private final BoolValue blocksOnly = new BoolValue("OnlyBlocks", this, true);
+    private final BoolValue backwards = new BoolValue("OnlyBackwards", this, true);
 
     private int slot;
     private boolean shouldBridge, isShifting = false;
@@ -53,6 +53,7 @@ public class BridgeAssist extends Module {
     @Kisoji
     public final Listener<MotionEvent.Pre> onMotion = event -> {    	
         if (mc.playerController.getCurrentGameType() == WorldSettings.GameType.SPECTATOR) return;
+        if (mc.thePlayer.capabilities.isFlying) return;
         
         boolean shift = delay.getValue() > 0;
         
@@ -88,8 +89,9 @@ public class BridgeAssist extends Module {
 
 			if (overAir()) {
 				if (shift) {
-					stopWatch.setMillis(randomInt((int) delay.get(), (int) (delay.get() + 0.1)));
-					stopWatch.reset();
+				    int delayMs = (int) (delay.getValue() * 50);
+				    stopWatch.setMillis(randomInt(delayMs, delayMs + 5));
+				    stopWatch.reset();
 				}
 
 				isShifting = true;
@@ -120,11 +122,6 @@ public class BridgeAssist extends Module {
 				PlayerUtil.setShift(false);
 				shouldBridge = true;
 			}
-		} 
-		
-		else if (shouldBridge && mc.thePlayer.capabilities.isFlying) {
-			PlayerUtil.setShift(false);
-			shouldBridge = false;
 		}
 		
 		else if (shouldBridge && overAir()) {

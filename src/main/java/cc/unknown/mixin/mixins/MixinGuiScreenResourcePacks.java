@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import com.google.common.collect.Lists;
 
 import cc.unknown.ui.menu.SearchResourceMenu;
-import cc.unknown.ui.menu.TextField;
+import cc.unknown.ui.menu.impl.TextField;
 import net.minecraft.client.gui.GuiOptionButton;
 import net.minecraft.client.gui.GuiResourcePackAvailable;
 import net.minecraft.client.gui.GuiResourcePackSelected;

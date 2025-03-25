@@ -24,16 +24,14 @@ public class AstolfoGui extends GuiScreen {
         float screenHeight = sr.getScaledHeight();
 
         float buttonWidth = 100;
-        float spacingX = 50;
-        float spacingY = 40;
+        float spacingY = 30;
 
-        float totalRowWidth = (buttonWidth * 3) + (spacingX * 2);
-        float startX = (screenWidth - totalRowWidth) / 2.0f;
+        float startX = (screenWidth - buttonWidth) / 2.0f;
         float startY = screenHeight / 4.0f;
 
         for (int i = 0; i < Category.values().length; i++) {
-            float x = startX + (i % 3) * (buttonWidth + spacingX);
-            float y = startY + (i / 3) * (buttonWidth / 2 + spacingY);
+            float x = startX;
+            float y = startY + i * (buttonWidth / 2 - spacingY);
             windows.add(new Window(Category.values()[i], x, y));
         }
     }
