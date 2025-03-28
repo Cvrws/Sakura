@@ -4,15 +4,15 @@ import org.lwjgl.input.Keyboard;
 
 import cc.unknown.Sakura;
 import cc.unknown.event.Kisoji;
+import cc.unknown.event.impl.ClickMouseEvent;
 import cc.unknown.event.impl.buz.Listener;
 import cc.unknown.event.impl.forge.KeyInputEvent;
-import cc.unknown.event.impl.forge.MouseForgeEvent;
 import cc.unknown.module.Module;
 import cc.unknown.module.impl.visual.FreeLook;
-import cc.unknown.util.client.CPSMap;
+import cc.unknown.util.Accessor;
 
-public class KeyHandler {
-	
+public class KeyHandler implements Accessor {
+
 	@Kisoji
 	public final Listener<KeyInputEvent> onKey = event -> {
 	    int key = Keyboard.getEventKey();
@@ -43,10 +43,10 @@ public class KeyHandler {
 	};
 	
 	@Kisoji
-	public final Listener<MouseForgeEvent> onMouse = event -> {
-		if (event.getEvent().button != 0) return;
-		if (event.getEvent().buttonstate) {
-			CPSMap.addClick();
-		}
+	public final Listener<ClickMouseEvent> onClick = event -> {
+        if (mc.gameSettings.keyBindTogglePerspective.isPressed()) {
+            mc.gameSettings.thirdPersonView = (mc.gameSettings.thirdPersonView + 1) % 3;
+            mc.renderGlobal.setDisplayListEntitiesDirty();
+        }
 	};
 }

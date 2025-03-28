@@ -57,6 +57,7 @@ public enum Sakura {
     public void init() {
         Display.setTitle(NAME + " " + VERSION);
         Runtime.getRuntime().addShutdownHook(new Thread(threadPool::shutdown));
+        System.setProperty("sun.java2d.opengl", "true");
 
         FontUtil.initializeFonts();
         optimizeMinecraft();
@@ -101,7 +102,8 @@ public enum Sakura {
             new DragHandler(),
             new CommandHandler(),
             new KeyHandler(),
-            new GuiMoveHandler()
+            new GuiMoveHandler(),
+            new CPSHandler()
         );
 
         MinecraftForge.EVENT_BUS.register(new ForgeEventListener());

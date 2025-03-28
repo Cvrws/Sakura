@@ -6,14 +6,14 @@ import java.util.List;
 import org.lwjgl.input.Mouse;
 
 import cc.unknown.event.Kisoji;
+import cc.unknown.event.impl.ClickMouseEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.MouseForgeEvent;
 import cc.unknown.event.impl.forge.TickForgeEvent;
 import cc.unknown.module.Module;
 import cc.unknown.module.api.Category;
 import cc.unknown.module.api.ModuleInfo;
+import cc.unknown.util.player.InventoryUtil;
 import cc.unknown.util.player.MoveUtil;
-import cc.unknown.util.player.PlayerUtil;
 import cc.unknown.util.value.impl.BoolValue;
 import cc.unknown.util.value.impl.MultiBoolValue;
 import cc.unknown.util.value.impl.SliderValue;
@@ -66,9 +66,9 @@ public class Reach extends Module {
     };
 	
 	@Kisoji
-	public final Listener<MouseForgeEvent> onMouse = event -> {
+	public final Listener<ClickMouseEvent> onMouse = event -> {
 		AutoClicker clicker = getModule(AutoClicker.class);
-		if (isInGame() && event.getEvent().button == 0 && (!clicker.isEnabled() || !Mouse.isButtonDown(0)) || isClicking()) {
+		if (isInGame() && event.getButton() == 0 && (!clicker.isEnabled() || !Mouse.isButtonDown(0)) || isClicking()) {
 			callReach();
 		}
 	};
@@ -77,7 +77,7 @@ public class Reach extends Module {
 	    if (!isInGame()) return false;
 
 	    if ((conditionals.isEnabled("Onlymove") && MoveUtil.isMoving()) ||
-	        (conditionals.isEnabled("OnlyWeapon") && !PlayerUtil.isSword()) ||
+	        (conditionals.isEnabled("OnlyWeapon") && !InventoryUtil.isSword()) ||
 	        (conditionals.isEnabled("OnlySprint") && !mc.thePlayer.isSprinting()) ||
 	        (conditionals.isEnabled("OnlySpeedPotion") && !mc.thePlayer.isPotionActive(Potion.moveSpeed)) ||
 	        (!(chance.getValue() == 1.0 || Math.random() <= chance.getValue())) ||

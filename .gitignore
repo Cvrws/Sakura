@@ -3,7 +3,7 @@
 .classpath
 .settings
 bin/
-Saku-Forge_Client.launch
+Sakura_Client
 run/
 build/
 build/libs

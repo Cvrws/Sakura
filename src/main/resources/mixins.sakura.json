@@ -58,7 +58,8 @@
 		"MixinGuiSpectator",
 		"MixinGuiNewChat",
 		"MixinChatLine",
-		"MixinRenderGlobal"
+		"MixinRenderGlobal",
+		"MixinRenderManager"
     	
     ]
 }

@@ -10,4 +10,5 @@ public interface INetworkManager {
 	void receiveUnregisteredPacket(final Packet packet);
 	
 	void sendUnregisteredPacket(final Packet packetIn);
+	
 }

@@ -1,7 +1,7 @@
 package cc.unknown.util.player;
 
+import cc.unknown.handlers.CPSHandler;
 import cc.unknown.util.Accessor;
-import cc.unknown.util.client.CPSMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -11,7 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
@@ -88,12 +87,12 @@ public class PlayerUtil implements Accessor {
     
     public static void leftClick(boolean state) {
     	setState(mc.gameSettings.keyBindAttack.getKeyCode(), state);
-    	if (!mc.thePlayer.isBlocking())
-    		CPSMap.addClick();
+    	if (!mc.thePlayer.isBlocking()) CPSHandler.addLeftClicks();
     }
     
     public static void rightClick(boolean state) {
     	setState(mc.gameSettings.keyBindUseItem.getKeyCode(), state);
+    	if (!mc.thePlayer.isBlocking()) CPSHandler.addRightClicks();
     }
     
     public static void jump(boolean state) {
@@ -132,14 +131,5 @@ public class PlayerUtil implements Accessor {
 
 	public static Block getBlock(double x, double y, double z) {
 		return mc.theWorld.getBlockState(new BlockPos(x, y, z)).getBlock();
-	}
-	
-	public static boolean isSword() {
-		if (mc.thePlayer.getCurrentEquippedItem() == null) {
-			return false;
-		} else {
-			Item item = mc.thePlayer.getCurrentEquippedItem().getItem();
-			return item instanceof ItemSword;
-		}
 	}
 }

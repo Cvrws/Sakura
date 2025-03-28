@@ -49,12 +49,9 @@ public class Velocity extends Module {
     @Kisoji
     public final Listener<TickForgeEvent> onPreTick = event -> {
         if (event.isPost()) return;
-        if (mc.currentScreen != null || !mc.inGameHasFocus) return;
         if (isEnabled(NoClip.class)) return;
         
-        if (mode.is("Normal")) {
-            ticks++;
-        }
+        ticks++;
     };
 
     @Kisoji
@@ -76,9 +73,8 @@ public class Velocity extends Module {
 
         if (!shouldApplyVelocity()) return;
 
-        if (MathUtil.nextRandom(0, 100).intValue() < (chance.getValue() * 100) + 1) {
+        if (MathUtil.nextRandom(0, 100).intValue() < (chance.getValue() * 100)) {
             applyVelocityReduction(event);
-            ticks = 0;
         }
     };
 

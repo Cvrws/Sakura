@@ -19,6 +19,6 @@ public class GuiMoveHandler implements Accessor {
 			for (KeyBinding bind : moveKeys) {
 				bind.pressed = GameSettings.isKeyDown(bind);
 			}
-		}
+		}	
 	};
 }

@@ -32,7 +32,7 @@ public class WTap extends Module {
             target = (EntityLivingBase) mc.objectMouseOver.entityHit;
         }
 
-        if (target == null || target.isDead) {
+        if (target == null) {
             target = null;
             return;
         }

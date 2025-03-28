@@ -2,6 +2,7 @@ package cc.unknown.module;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Random;
 
 import cc.unknown.Sakura;
 import cc.unknown.module.api.Category;
@@ -9,6 +10,7 @@ import cc.unknown.module.api.ModuleInfo;
 import cc.unknown.util.Accessor;
 import cc.unknown.util.structure.lists.SList;
 import cc.unknown.util.value.Value;
+import cc.unknown.util.value.impl.SliderValue;
 
 public abstract class Module implements Accessor {
 
@@ -155,4 +157,17 @@ public abstract class Module implements Accessor {
 	public SList<Value> getValues() {
 		return values;
 	}
+	
+	public void correctSliders(SliderValue c, SliderValue d) {
+		if (c.getValue() > d.getValue()) {
+			float p = c.getValue();
+			c.setValue(d.getValue());
+			d.setValue(p);
+		}
+	}
+	
+	public double ranModuleVal(SliderValue a, SliderValue b, Random r) {
+		return a.getValue() == b.getValue() ? a.getValue() : a.getValue() + r.nextDouble() * (b.getValue() - a.getValue());
+	}
+
 }

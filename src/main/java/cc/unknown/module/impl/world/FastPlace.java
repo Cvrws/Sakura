@@ -9,6 +9,7 @@ import cc.unknown.module.api.ModuleInfo;
 import cc.unknown.util.client.StopWatch;
 import cc.unknown.util.player.PlayerUtil;
 import cc.unknown.util.value.impl.SliderValue;
+import net.minecraft.item.ItemBlock;
 
 @ModuleInfo(name = "FastPlace", category = Category.WORLD)
 public class FastPlace extends Module {
@@ -17,7 +18,7 @@ public class FastPlace extends Module {
 
 	@Kisoji
 	public final Listener<Render3DForgeEvent> onRenderHand = event -> {
-		if (mc.gameSettings.keyBindUseItem.isKeyDown()) {
+		if (PlayerUtil.getItem() instanceof ItemBlock && mc.gameSettings.keyBindUseItem.isKeyDown()) {
 			if (stopWatch.finished(1000 / (int) cps.getValue())) {
 				PlayerUtil.rightClick(true);
 				stopWatch.reset();

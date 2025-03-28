@@ -6,6 +6,7 @@ import java.util.List;
 import cc.unknown.util.Accessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -13,7 +14,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.util.BlockPos;
 
 public class InventoryUtil implements Accessor {
-	
+
 	public final static List<Block> blacklist = Arrays.asList(Blocks.stone_slab, Blocks.wooden_slab, Blocks.stone_slab2,
 			Blocks.brown_mushroom, Blocks.red_mushroom, Blocks.red_flower, Blocks.yellow_flower, Blocks.flower_pot,
 			Blocks.stone_button, Blocks.wooden_button, Blocks.lever, Blocks.light_weighted_pressure_plate,
@@ -23,7 +24,7 @@ public class InventoryUtil implements Accessor {
 			Blocks.crafting_table, Blocks.furnace, Blocks.waterlily, Blocks.dispenser, Blocks.stone_pressure_plate,
 			Blocks.wooden_pressure_plate, Blocks.noteblock, Blocks.iron_door, Blocks.dropper, Blocks.tnt,
 			Blocks.standing_banner, Blocks.wall_banner, Blocks.redstone_torch, Blocks.oak_door);
-	
+
 	public static int findBlock() {
 		int slot = -1;
 		int highestStack = -1;
@@ -40,7 +41,7 @@ public class InventoryUtil implements Accessor {
 		}
 		return slot;
 	}
-	
+
 	public static boolean isSword() {
 		ItemStack stack = mc.thePlayer.getCurrentEquippedItem();
 		if (stack == null) {
@@ -72,5 +73,26 @@ public class InventoryUtil implements Accessor {
 		}
 
 		return bestSlot;
+	}
+
+	public static void bestSword(Entity targetEntity) {
+		int bestSlot = 0;
+		float f = -1F;
+		for (int i1 = 36; i1 < 45; i1++)
+			if (mc.thePlayer.inventoryContainer.inventorySlots.toArray()[i1] != null && targetEntity != null) {
+				ItemStack curSlot = mc.thePlayer.inventoryContainer.getSlot(i1).getStack();
+				if (curSlot != null && (curSlot.getItem() instanceof ItemSword)) {
+					ItemSword sword = (ItemSword) curSlot.getItem();
+					if (sword.getDamageVsEntity() > f) {
+						bestSlot = i1 - 36;
+						f = sword.getDamageVsEntity();
+					}
+				}
+			}
+
+		if (f > -1F) {
+			mc.thePlayer.inventory.currentItem = bestSlot;
+			mc.playerController.updateController();
+		}
 	}
 }

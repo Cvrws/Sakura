@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
@@ -62,6 +63,19 @@ public class SList<T> implements Iterable<T>, Serializable {
         return false;
     }
 
+    public boolean removeIf(Predicate<? super T> filter) {
+        Objects.requireNonNull(filter);
+        boolean removed = false;
+        for (int i = 0; i < size; i++) {
+            if (filter.test(elementData(i))) {
+                fastRemove(i);
+                i--;
+                removed = true;
+            }
+        }
+        return removed;
+    }
+    
     public T get(int index) {
         checkIndex(index);
         return elementData(index);
