@@ -64,8 +64,8 @@
 		"MixinVertexBuffer",
 		"MixinVertexFormat",
 		"MixinChunkCache",
-		"MixinNodeProcessor",
-		"MixinPlayerControllerMP"
+		"MixinNodeProcessor"
+		//"MixinPlayerControllerMP"
     	
     ]
 }
