@@ -59,7 +59,12 @@
 		"MixinGuiNewChat",
 		"MixinChatLine",
 		"MixinRenderGlobal",
-		"MixinRenderManager"
+		"MixinRenderManager",
+		"MixinTileEntityRendererDispatcher",
+		"MixinVertexBuffer",
+		"MixinVertexFormat",
+		"MixinChunkCache",
+		"MixinNodeProcessor"
     	
     ]
 }

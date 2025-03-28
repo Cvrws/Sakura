@@ -36,7 +36,7 @@ public class AutoTool extends Module {
 	@Kisoji
 	public final Listener<PacketEvent> onPacket = event -> {
 		if (event.isIncoming()) return;
-		if (autoWeapon.get() && (event.getPacket() instanceof C02PacketUseEntity) && ((C02PacketUseEntity) event.getPacket()).getAction().equals(net.minecraft.network.play.client.C02PacketUseEntity.Action.ATTACK)) {
+		if (autoWeapon.get() && (event.getPacket() instanceof C02PacketUseEntity) && ((C02PacketUseEntity) event.getPacket()).getAction().equals(C02PacketUseEntity.Action.ATTACK)) {
 			boolean checks = !mc.thePlayer.isEating();
 			if (checks)
 				InventoryUtil.bestSword(((C02PacketUseEntity) event.getPacket()).getEntityFromWorld(mc.theWorld));
