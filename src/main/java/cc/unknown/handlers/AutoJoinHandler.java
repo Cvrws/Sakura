@@ -5,7 +5,7 @@ import java.util.List;
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.impl.PacketEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.TickForgeEvent;
+import cc.unknown.event.impl.forge.ClientTickForgeEvent;
 import cc.unknown.util.Accessor;
 import cc.unknown.util.client.PacketUtil;
 import cc.unknown.util.player.MoveUtil;
@@ -44,7 +44,7 @@ public class AutoJoinHandler implements Accessor {
 	};
 	
 	@Kisoji
-	public final Listener<TickForgeEvent> onTick = event -> {
+	public final Listener<ClientTickForgeEvent> onTick = event -> {
 		if (event.isPost()) return;
         if (isInGame()) {
             if (mc.currentScreen instanceof GuiChat || MoveUtil.isMoving()) {

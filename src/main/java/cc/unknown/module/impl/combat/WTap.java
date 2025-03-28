@@ -2,26 +2,35 @@ package cc.unknown.module.impl.combat;
 
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.impl.MotionEvent;
+import cc.unknown.event.impl.PacketEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.AttackForgeEvent;
 import cc.unknown.module.Module;
 import cc.unknown.module.api.Category;
 import cc.unknown.module.api.ModuleInfo;
 import cc.unknown.util.client.MathUtil;
 import cc.unknown.util.player.MoveUtil;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 
+@SuppressWarnings("rawtypes")
 @ModuleInfo(name = "WTap", category = Category.COMBAT)
 public class WTap extends Module {
 
     private EntityLivingBase target = null;
-    
+
     @Kisoji
-    public final Listener<AttackForgeEvent> onAttack = event -> {
-        if (event.getEvent().entity instanceof EntityLivingBase) {
-            target = (EntityLivingBase) event.getEvent().entity;
-        }
+    public final Listener<PacketEvent> onPacket = event -> {
+		Packet packet = event.getPacket();
+    	if (event.isIncoming()) return;
+    	
+    	if (packet instanceof C02PacketUseEntity) {
+    		C02PacketUseEntity wrapper = (C02PacketUseEntity) packet;
+    		if (wrapper.getAction() == C02PacketUseEntity.Action.ATTACK) {
+    			target = (EntityLivingBase) wrapper.getEntityFromWorld(mc.theWorld);
+    		}
+    	}
     };
 
     @Kisoji

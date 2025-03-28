@@ -2,9 +2,9 @@ package cc.unknown.event.impl.forge;
 
 import cc.unknown.Sakura;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
@@ -14,19 +14,24 @@ public class ForgeEventListener {
 
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) { // client tick
-	    Sakura.instance.getEventBus().handle(new TickForgeEvent(event));
+	    Sakura.instance.getEventBus().handle(new ClientTickForgeEvent(event));
+	}
+	
+	@SubscribeEvent
+	public void onRenderTick(TickEvent.RenderTickEvent event) { // render tick
+		Sakura.instance.getEventBus().handle(new RenderTickForgeEvent(event));
+	}
+	
+	@SubscribeEvent
+	public void onMouse(MouseEvent event) { // mouse tick
+		Sakura.instance.getEventBus().handle(new MouseForgeEvent(event));
 	}
 	
     @SubscribeEvent
     public void onRender3D(RenderWorldLastEvent event) { // render 3d
         Sakura.instance.getEventBus().handle(new Render3DForgeEvent(event));
     }
-    
-    @SubscribeEvent
-    public void onHit(AttackEntityEvent event) { // attack event
-    	Sakura.instance.getEventBus().handle(new AttackForgeEvent(event));
-    }
-    
+
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) { // keyboard input
     	Sakura.instance.getEventBus().handle(new KeyInputEvent(event));

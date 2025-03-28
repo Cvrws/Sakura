@@ -67,11 +67,11 @@ public class PlayerUtil implements Accessor {
 			return false;
 		}
 
-		if (scoreboard && mc.thePlayer.getTeam() != null && player.getTeam() != null && mc.thePlayer.getTeam().isSameTeam(player.getTeam())) {
+		if (mc.thePlayer.getTeam() != null && player.getTeam() != null && mc.thePlayer.getTeam().isSameTeam(player.getTeam())) {
 			return true;
 		}
 
-		if (checkColor && playerName != null && player.getDisplayName() != null) {
+		if (playerName != null && player.getDisplayName() != null) {
 			String targetName = player.getDisplayName().getFormattedText().replace("§r", "");
 			String clientName = playerName.replace("§r", "");
 			return targetName.startsWith("§" + clientName.charAt(1));

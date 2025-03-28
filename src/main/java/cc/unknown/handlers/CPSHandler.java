@@ -4,7 +4,7 @@ import org.lwjgl.input.Mouse;
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.impl.ClickMouseEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.TickForgeEvent;
+import cc.unknown.event.impl.forge.ClientTickForgeEvent;
 import cc.unknown.util.Accessor;
 import cc.unknown.util.structure.lists.SList;
 
@@ -27,7 +27,7 @@ public class CPSHandler implements Accessor {
 	};
 	
 	@Kisoji
-	public final Listener<TickForgeEvent> onTick = event -> {
+	public final Listener<ClientTickForgeEvent> onTick = event -> {
 		if (event.isPre()) {
 			leftPresses.removeIf(t -> System.currentTimeMillis() - t > 1000);
 			rightPresses.removeIf(t -> System.currentTimeMillis() - t > 1000);

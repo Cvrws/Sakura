@@ -7,7 +7,7 @@ import org.lwjgl.input.Keyboard;
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.impl.VelocityEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.TickForgeEvent;
+import cc.unknown.event.impl.forge.ClientTickForgeEvent;
 import cc.unknown.module.Module;
 import cc.unknown.module.api.Category;
 import cc.unknown.module.api.ModuleInfo;
@@ -47,7 +47,7 @@ public class Velocity extends Module {
     }
 
     @Kisoji
-    public final Listener<TickForgeEvent> onPreTick = event -> {
+    public final Listener<ClientTickForgeEvent> onPreTick = event -> {
         if (event.isPost()) return;
         if (isEnabled(NoClip.class)) return;
         
@@ -58,7 +58,6 @@ public class Velocity extends Module {
     public final Listener<VelocityEvent> onPostVelocity = event -> {
         if (mode.is("Jump")) {
             mc.thePlayer.setJumping(mc.thePlayer.onGround);
-            System.out.println("pepegrillo");
         }
     };
 

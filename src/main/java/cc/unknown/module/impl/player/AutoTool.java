@@ -3,7 +3,7 @@ package cc.unknown.module.impl.player;
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.impl.PacketEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.TickForgeEvent;
+import cc.unknown.event.impl.forge.ClientTickForgeEvent;
 import cc.unknown.handlers.SpoofHandler;
 import cc.unknown.module.Module;
 import cc.unknown.module.api.Category;
@@ -44,7 +44,7 @@ public class AutoTool extends Module {
 	};
 
 	@Kisoji
-	public final Listener<TickForgeEvent> onTick = event -> {
+	public final Listener<ClientTickForgeEvent> onTick = event -> {
 		if (event.isPost())
 			return;
 		if (mc.gameSettings.keyBindAttack.isKeyDown() && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && InventoryUtil.findTool(mc.objectMouseOver.getBlockPos()) != -1) {

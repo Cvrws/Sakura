@@ -19,14 +19,14 @@ import cc.unknown.util.value.impl.SliderValue;
 public class Interface extends Module {
 	public final MultiBoolValue elements = new MultiBoolValue("Elements", this, Arrays.asList(
 			new BoolValue("Watermark", true),
-			new BoolValue("IGN", true),
-			new BoolValue("FPS", true),
-			new BoolValue("Ping", true),
+			new BoolValue("IGN", false),
+			new BoolValue("FPS", false),
+			new BoolValue("Ping", false),
 			new BoolValue("CPS", true),
-			new BoolValue("PlayerPosition", true),
+			new BoolValue("PlayerPosition", false),
 			new BoolValue("ArrayList", true), 
 			new BoolValue("PotionStatus", true), 
-			new BoolValue("Inventory", true)));
+			new BoolValue("Inventory", false)));
 
 	public final BoolValue cFont = new BoolValue("CustomFont", this, true, () -> elements.isEnabled("ArrayList"));
 	public final ModeValue fontMode = new ModeValue("FontMode", this, () -> cFont.canDisplay() && cFont.get(), "Roboto", "Comfortaa", "Consolas", "Roboto", "Verdana", "SFUI");
@@ -46,14 +46,8 @@ public class Interface extends Module {
 	public final ModeValue bgColor = new ModeValue("BackgroundColor", this, background::get, "Dark", "Synced", "Custom", "Synced", "Dark");
 	private final ColorValue bgCustomColor = new ColorValue("CustomColor", new Color(32, 32, 64), this, () -> bgColor.canDisplay() && bgColor.is("Custom"));
 	private final SliderValue bgAlpha = new SliderValue("BackgroundAlpha", this, 100, 1, 255, 1);
-	
-    public final BoolValue customScoreboard = new BoolValue("CustomScoreboard", this, false);
-    public final BoolValue hideScoreboard = new BoolValue("HideScoreboard", this, false,() -> !customScoreboard.get());
-    public final BoolValue hideScoreRed = new BoolValue("HideScoreboardRedPoints", this, true, customScoreboard::get);
-    public final BoolValue fixHeight = new BoolValue("FixHeight", this, true, customScoreboard::get);
-    public final BoolValue hideBackground = new BoolValue("HideBackground", this, true, customScoreboard::get);
     
-    public final BoolValue wavey = new BoolValue("WaveyCape", this, true);
+    public final BoolValue wavey = new BoolValue("WaveyCape", this, false);
 
 	public int getRainbow(int counter) {
 		return Color.HSBtoRGB(getRainbowHSB(counter)[0], getRainbowHSB(counter)[1], getRainbowHSB(counter)[2]);

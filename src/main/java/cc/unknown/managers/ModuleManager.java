@@ -34,7 +34,7 @@ public final class ModuleManager extends SList<Module> {
         		// combat
         		AimAssist.class,
         		AutoClicker.class,
-        		AutoBlock.class,
+        		//AutoBlock.class,
         		Teams.class,
         		Reach.class,
         		WTap.class,

@@ -3,7 +3,7 @@ package cc.unknown.module.impl.player;
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.impl.PacketEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.TickForgeEvent;
+import cc.unknown.event.impl.forge.ClientTickForgeEvent;
 import cc.unknown.module.Module;
 import cc.unknown.module.api.Category;
 import cc.unknown.module.api.ModuleInfo;
@@ -39,7 +39,7 @@ public class Blink extends Module {
 	}
 	
 	@Kisoji
-	public final Listener<TickForgeEvent> onTickPost = event -> {
+	public final Listener<ClientTickForgeEvent> onTickPost = event -> {
 		if (event.isPre()) return;
 		if (mc.thePlayer == null) return;
 		while (!packets.isEmpty()) {

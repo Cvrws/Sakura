@@ -9,7 +9,7 @@ import java.util.Random;
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.Priority;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.TickForgeEvent;
+import cc.unknown.event.impl.forge.ClientTickForgeEvent;
 import cc.unknown.module.Module;
 import cc.unknown.module.api.Category;
 import cc.unknown.module.api.ModuleInfo;
@@ -45,7 +45,7 @@ public class MusicPlayer extends Module {
         started = false;
     }
     @Kisoji(value = Priority.HIGHEST)
-    public final Listener<TickForgeEvent> onTick = event -> {
+    public final Listener<ClientTickForgeEvent> onTick = event -> {
     	if (event.isPost()) return;
 
         if (started) {

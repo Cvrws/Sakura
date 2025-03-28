@@ -40,41 +40,43 @@ public class CustomCapeRenderLayer implements LayerRenderer<AbstractClientPlayer
     }
 
     @Override
-    public void doRenderLayer(AbstractClientPlayer abstractClientPlayer, float paramFloat1, float paramFloat2, float deltaTick,
-            float animationTick, float paramFloat5, float paramFloat6, float paramFloat7) {
-        if (!Sakura.instance.getModuleManager().getModule(Interface.class).wavey.get())
-            return;
-
-        if (!abstractClientPlayer.isInvisible() && (abstractClientPlayer.hasPlayerInfo() && abstractClientPlayer.isWearing(EnumPlayerModelParts.CAPE) && abstractClientPlayer.getLocationCape() != null || abstractClientPlayer.getName().equals(Minecraft.getMinecraft().getSession().getUsername()) && Sakura.instance.getModuleManager().getModule(Interface.class).isEnabled())) {
-            if (Config.capeMovement == CapeMovement.BASIC_SIMULATION) {
-                PlayerExt.updateSimulation(abstractClientPlayer, partCount);
-            }
-
-            if (abstractClientPlayer == Minecraft.getMinecraft().thePlayer) {
-            	if (abstractClientPlayer.getLocationCape() == null) {
-            		this.playerRenderer.bindTexture(null);
-            	}
-            	
-            	this.playerRenderer.bindTexture(abstractClientPlayer.getLocationCape());
-            }
-
-            if (Config.capeStyle == CapeStyle.SMOOTH) {
-                if (abstractClientPlayer == Minecraft.getMinecraft().thePlayer) {
-                	smoothCapeRenderer.renderSmoothCape(this, abstractClientPlayer, deltaTick);
-                } else {
-                    smoothCapeRenderer.renderSmoothCape(this, abstractClientPlayer, deltaTick);
-                }
-            } else {
-                ModelRenderer[] parts = customCape;
-                for (int part = 0; part < partCount; part++) {
-                    ModelRenderer model = parts[part];
-                    GlStateManager.pushMatrix();
-                    modifyPoseStack(abstractClientPlayer, deltaTick, part);
-                    model.render(0.0625F);
-                    GlStateManager.popMatrix();
-                }
-            }
-        }
+    public void doRenderLayer(AbstractClientPlayer abstractClientPlayer, float paramFloat1, float paramFloat2, float deltaTick, float animationTick, float paramFloat5, float paramFloat6, float paramFloat7) {
+    	try {
+	    	if (!Sakura.instance.getModuleManager().getModule(Interface.class).wavey.get()) return;
+	
+	        if (!abstractClientPlayer.isInvisible() && (abstractClientPlayer.hasPlayerInfo() && abstractClientPlayer.isWearing(EnumPlayerModelParts.CAPE) && abstractClientPlayer.getLocationCape() != null || abstractClientPlayer.getName().equals(Minecraft.getMinecraft().getSession().getUsername()) && Sakura.instance.getModuleManager().getModule(Interface.class).isEnabled())) {
+	            if (Config.capeMovement == CapeMovement.BASIC_SIMULATION) {
+	                PlayerExt.updateSimulation(abstractClientPlayer, partCount);
+	            }
+	
+	            if (abstractClientPlayer == Minecraft.getMinecraft().thePlayer) {
+	            	if (abstractClientPlayer.getLocationCape() == null) {
+	            		this.playerRenderer.bindTexture(null);
+	            	}
+	            	
+	            	this.playerRenderer.bindTexture(abstractClientPlayer.getLocationCape());
+	            }
+	
+	            if (Config.capeStyle == CapeStyle.SMOOTH) {
+	                if (abstractClientPlayer == Minecraft.getMinecraft().thePlayer) {
+	                	smoothCapeRenderer.renderSmoothCape(this, abstractClientPlayer, deltaTick);
+	                } else {
+	                    smoothCapeRenderer.renderSmoothCape(this, abstractClientPlayer, deltaTick);
+	                }
+	            } else {
+	                ModelRenderer[] parts = customCape;
+	                for (int part = 0; part < partCount; part++) {
+	                    ModelRenderer model = parts[part];
+	                    GlStateManager.pushMatrix();
+	                    modifyPoseStack(abstractClientPlayer, deltaTick, part);
+	                    model.render(0.0625F);
+	                    GlStateManager.popMatrix();
+	                }
+	            }
+	        }
+    	} catch (NullPointerException ignored) {
+    		
+    	}
     }
     
     private void modifyPoseStack(AbstractClientPlayer abstractClientPlayer, float h, int part) {

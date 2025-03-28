@@ -2,11 +2,11 @@ package cc.unknown.event.impl.forge;
 
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-public class TickForgeEvent extends ForgeEvent<TickEvent.ClientTickEvent> {
+public class ClientTickForgeEvent extends ForgeEvent<TickEvent.ClientTickEvent> {
 
     private final TickEvent.ClientTickEvent.Phase phase;
 
-    public TickForgeEvent(TickEvent.ClientTickEvent event) {
+    public ClientTickForgeEvent(TickEvent.ClientTickEvent event) {
         super(event);
         this.phase = event.phase;
     }

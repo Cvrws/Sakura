@@ -4,7 +4,7 @@ import cc.unknown.event.Kisoji;
 import cc.unknown.event.Priority;
 import cc.unknown.event.impl.PacketEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.TickForgeEvent;
+import cc.unknown.event.impl.forge.ClientTickForgeEvent;
 import cc.unknown.mixin.impl.IBlockPos;
 import cc.unknown.util.Accessor;
 import cc.unknown.util.player.PlayerExt;
@@ -18,7 +18,7 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity;
 public class SinceTickHandler implements Accessor {
 	
 	@Kisoji
-	public final Listener<TickForgeEvent> onPreTick = event -> {
+	public final Listener<ClientTickForgeEvent> onPreTick = event -> {
 		if (event.isPost()) return;
 		if (mc.thePlayer != null) {
 			PlayerExt.lastMotionX = mc.thePlayer.motionX;

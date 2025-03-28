@@ -8,11 +8,12 @@ import org.lwjgl.input.Mouse;
 
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.impl.MotionEvent;
+import cc.unknown.event.impl.PacketEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.AttackForgeEvent;
 import cc.unknown.module.Module;
 import cc.unknown.module.api.Category;
 import cc.unknown.module.api.ModuleInfo;
+import cc.unknown.util.client.EnemyUtil;
 import cc.unknown.util.client.FriendUtil;
 import cc.unknown.util.client.MathUtil;
 import cc.unknown.util.player.InventoryUtil;
@@ -27,13 +28,17 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
+@SuppressWarnings("rawtypes")
 @ModuleInfo(name = "AimAssist", category = Category.COMBAT)
 public class AimAssist extends Module {
 
-	private final ModeValue priority = new ModeValue("Priority", this, "Distance", "Distance", "VectorPosition", "BestVectorPosition", "Nearest", "BestVector");
+	private final ModeValue priority = new ModeValue("Priority", this, "Distance", "Distance", "BestVectorPosition", "Nearest", "BestVector");
 	
 	private final SliderValue speedYaw = new SliderValue("HorizontalSpeed", this, 1.2f, 1.0f, 20f, 0.01f);
 	private final SliderValue speedYaw2 = new SliderValue("HorizontalMult", this, 1, 0, 40);
@@ -54,63 +59,71 @@ public class AimAssist extends Module {
 			new BoolValue("LockTarget", true),
 			new BoolValue("IncreaseStrafe", false),
 			new BoolValue("Smoothness", false),
+			new BoolValue("MouseOverEntity", false),
+			new BoolValue("MultiPoint", false),
 			new BoolValue("VisibilityCheck", false), 
 			new BoolValue("RequireClicking", true), 
 			new BoolValue("BreakBlocks", false)));
 	
 	private final Set<EntityPlayer> lockedTargets = new HashSet<>();
 	public EntityPlayer target;
+	
+	@Override
+	public void onDisable() {
+		target = null;
+	}
 
 	@Kisoji
-	public final Listener<MotionEvent.Pre> onPreMotion = event -> {
-		if (mc.currentScreen != null || !mc.inGameHasFocus) return;
+	public final Listener<MotionEvent.Pre> onPreMotion = event -> {		
+	    if (noAim()) {
+	        return;
+	    }
+	    
+        if (!conditionals.isEnabled("LockTarget") || target == null || !onTarget()) {
+            target = getTarget();
+        }
+        
+	    if (target == null) {
+	        return;
+	    }
 
-		if (!conditionals.isEnabled("OnlyWeapons") || InventoryUtil.isSword()) {
-			if (conditionals.isEnabled("BreakBlocks")) {
-				BlockPos blockPos = mc.objectMouseOver.getBlockPos();
+		Vector2f rotations = getRotations(target, event.getYaw(), event.getPitch());
 
-				if (blockPos != null) {
-					Block block = PlayerUtil.getBlock(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-
-					if (block != Blocks.air && block != Blocks.lava && block != Blocks.water && block != Blocks.flowing_lava && block != Blocks.flowing_water)
-						return;
-				}
+		if (conditionals.isEnabled("IncreaseStrafe")) {
+			if (mc.thePlayer.moveStrafing != 0) {
+				float value = 0.5f;
+				rotations.x += value;
 			}
-
-			if (!conditionals.isEnabled("RequireClicking") || Mouse.isButtonDown(0)) {
-				target = getTarget();
-
-				if (target != null) {
-					Vector2f rotations = getRotations(target, event.getYaw(), event.getPitch());
-
-					if (conditionals.isEnabled("IncreaseStrafe")) {
-						if (mc.thePlayer.moveStrafing != 0) {
-							float value = 0.5f;
-							rotations.x += value;
-						}
-					}
-
-					if (aimPitch.get())
-						mc.thePlayer.rotationPitch = rotations.y;
-
-					mc.thePlayer.rotationYaw = rotations.x;
-				}
-			}
+		}
+		
+		if (onTarget(target)) {
+			if (aimPitch.get()) mc.thePlayer.rotationPitch = rotations.y;
+			mc.thePlayer.rotationYaw = rotations.x;
+		} else {	
+			if (aimPitch.get()) mc.thePlayer.rotationPitch = rotations.y;
+			mc.thePlayer.rotationYaw = rotations.x;
 		}
 	};
 	
-    @Kisoji
-    public final Listener<AttackForgeEvent> onAttack = event -> {
-    	if (conditionals.isEnabled("LockTarget") && event.getEvent().entityLiving instanceof EntityPlayer) {
-    	    EntityPlayer attackedTarget = (EntityPlayer) event.getEvent().entityLiving;
-    	    if (isValidTarget(attackedTarget)) {
-    	        lockedTargets.add(attackedTarget);
-    	        if (target == null) {
-    	            target = attackedTarget;
+	@Kisoji
+    public final Listener<PacketEvent> onPacket = event -> {
+		Packet packet = event.getPacket();
+    	if (event.isIncoming()) return;
+    	
+    	if (packet instanceof C02PacketUseEntity) {
+    		C02PacketUseEntity wrapper = (C02PacketUseEntity) packet;
+    		if (wrapper.getAction() == C02PacketUseEntity.Action.ATTACK) {
+    	        if (conditionals.isEnabled("LockTarget") && wrapper.getEntityFromWorld(mc.theWorld) instanceof EntityPlayer) {
+    	            EntityPlayer attackedTarget = (EntityPlayer) wrapper.getEntityFromWorld(mc.theWorld);
+    	            lockedTargets.add(attackedTarget);
+    	            if (target == null && isValidTarget(attackedTarget, new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ), (int) fovRange.getValue())) {
+    	            	target = attackedTarget;
+    	            }
     	        }
-    	    }
+    		}
     	}
     };
+
     
     private Vector2f getRotations(Entity target, float yaw, float pitch) {
 		Vector2f rotations = RotationUtil.getEntityRotations(target);
@@ -177,62 +190,95 @@ public class AimAssist extends Module {
 			
 		return new Vector2f(rotations.x, rotations.y);
     }
-    
-	public EntityPlayer getTarget() {
-	    EntityPlayer bestTarget = null;
-	    Vec3 playerPos = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
-	    
-	    if (mc.objectMouseOver != null && mc.objectMouseOver.entityHit instanceof EntityPlayer) {
-	        EntityPlayer aimedTarget = (EntityPlayer) mc.objectMouseOver.entityHit;
-	        if (lockedTargets.contains(aimedTarget) && isValidTarget(aimedTarget)) {
-	            return aimedTarget;
-	        }
-	    }
-
-	    double bestScore = Double.MAX_VALUE;
-
-	    for (EntityPlayer target : mc.theWorld.playerEntities) {
-	        if (lockedTargets.contains(target)) continue;
-	        if (target == mc.thePlayer) continue;
-	        if (!isValidTarget(target)) continue;
-
-	        double score = 0;
+	
+    private EntityPlayer getTarget() {
+        int fov = (int) fovRange.getValue();
+        Vec3 playerPos = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
+        EntityPlayer bestTarget = null;
+        double bestScore = Double.MAX_VALUE;
+        
+        for (EntityPlayer player : mc.theWorld.playerEntities) {
+            if (lockedTargets.contains(player) && !isValidTarget(player, playerPos, fov)) {
+                continue;
+            }
+            if (!isValidTarget(player, playerPos, fov)) {
+                continue;
+            }
+            
+            double score = playerPos.distanceTo(player.getPositionVector());
             
             switch (priority.getMode()) {
             case "Distance":
-            	score = mc.thePlayer.getDistanceSqToEntity(target);
+            	score = mc.thePlayer.getDistanceSqToEntity(player);
             	break;
             case "Nearest":
-            	RotationUtil.nearestRotation(target.getEntityBoundingBox());
-            	break;
-            case "VectorPosition":
-            	score = playerPos.distanceTo(target.getPositionVector());
+            	score = RotationUtil.nearestRotation(player.getEntityBoundingBox());
             	break;
             case "BestVector":
-            	score = RotationUtil.getDistanceToEntityBox(target);
+            	score = RotationUtil.getDistanceToEntityBox(player);
             	break;
             case "BestVectorPosition":
-            	score = RotationUtil.getDistanceToEntityBoxFromPosition(target.posX, target.posY, target.posZ, target);
+            	score = RotationUtil.getDistanceToEntityBoxFromPosition(player.posX, player.posY, player.posZ, player);
             	break;
             }
             
             if (score < bestScore) {
-                bestTarget = target;
+                bestTarget = player;
                 bestScore = score;
             }
+        }
+        
+        return bestTarget;
+    }
+	
+	private boolean isValidTarget(EntityPlayer player, Vec3 playerPos, int fov) {
+	    if (player == mc.thePlayer || !player.isEntityAlive()) return false;
+	    if (EnemyUtil.isEnemy(player)) return false;
+	    if (PlayerUtil.unusedNames(player)) return false;
+	    if (conditionals.isEnabled("MultiPoint") && mc.pointedEntity != null && mc.pointedEntity == target) return false;
+	    if (!conditionals.isEnabled("IgnoreInvisibles") && !player.isInvisible()) return false;
+	    if (FriendUtil.isFriend(player) && conditionals.isEnabled("IgnoreFriends")) return false;
+	    if (PlayerUtil.isTeam(player, true, true) && isEnabled(Teams.class)) return false;
+	    if (mc.thePlayer.getDistanceToEntity(player) > range.getValue()) return false;
+	    if (conditionals.isEnabled("VisibilityCheck") && !mc.thePlayer.canEntityBeSeen(player)) return false;	    
+	    return fov == 180 || PlayerUtil.isInFov(player, fov);
+	}
+
+
+	private boolean noAim() {
+	    if (mc.currentScreen != null || !mc.inGameHasFocus) return true;
+	    if (conditionals.isEnabled("OnlyWeapons") && !InventoryUtil.isSword()) return true;
+	    if (conditionals.isEnabled("RequireClicking") && !Mouse.isButtonDown(0)) return true;
+	    if (conditionals.isEnabled("MouseOverEntity")) {
+	        if (mc.objectMouseOver == null || mc.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY) {
+	            return true;
+	        }
 	    }
-
-	    return bestTarget;
+	    
+	    if (conditionals.isEnabled("BreakBlocks") && mc.objectMouseOver != null) {
+	        BlockPos blockPos = mc.objectMouseOver.getBlockPos();
+	        if (blockPos != null) {
+	            Block block = mc.theWorld.getBlockState(blockPos).getBlock();
+	            if (block != Blocks.air && block != Blocks.lava && block != Blocks.water &&
+	                block != Blocks.flowing_lava && block != Blocks.flowing_water) {
+	                return true;
+	            }
+	        }
+	    }
+	    
+	    return false;
 	}
-
-	private boolean isValidTarget(EntityPlayer target) {
-	    return target != mc.thePlayer &&
-	           !target.isDead &&
-	           (!conditionals.isEnabled("VisibilityCheck") || mc.thePlayer.canEntityBeSeen(target)) &&
-	           (!conditionals.isEnabled("IgnoreInvisibles") || !target.isInvisible()) &&
-	           (!conditionals.isEnabled("IgnoreFriends") || !FriendUtil.isFriend(target)) &&
-	           (!isEnabled(Teams.class) || !PlayerUtil.isTeam(target, true, true)) &&
-	           PlayerUtil.inRange(target, range.getValue()) &&
-	           PlayerUtil.isInFov(target, fovRange.getValue());
-	}
+	
+    private boolean onTarget() {
+        return mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
+                && mc.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK
+                && mc.objectMouseOver.entityHit == target;
+    }
+    
+    private boolean onTarget(EntityPlayer target) {
+    	return mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
+    			&& mc.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK
+    			&& mc.objectMouseOver.entityHit == target;
+    }
 }
+

@@ -8,7 +8,7 @@ import org.lwjgl.input.Mouse;
 import cc.unknown.event.Kisoji;
 import cc.unknown.event.impl.ClickMouseEvent;
 import cc.unknown.event.impl.buz.Listener;
-import cc.unknown.event.impl.forge.TickForgeEvent;
+import cc.unknown.event.impl.forge.ClientTickForgeEvent;
 import cc.unknown.module.Module;
 import cc.unknown.module.api.Category;
 import cc.unknown.module.api.ModuleInfo;
@@ -60,7 +60,7 @@ public class Reach extends Module {
     }
     
     @Kisoji
-    public final Listener<TickForgeEvent> onPreTick = event -> {
+    public final Listener<ClientTickForgeEvent> onPreTick = event -> {
         if (event.isPost()) return;
         ticks++;
     };
@@ -76,19 +76,20 @@ public class Reach extends Module {
 	private boolean callReach() {
 	    if (!isInGame()) return false;
 
-	    if ((conditionals.isEnabled("Onlymove") && MoveUtil.isMoving()) ||
-	        (conditionals.isEnabled("OnlyWeapon") && !InventoryUtil.isSword()) ||
-	        (conditionals.isEnabled("OnlySprint") && !mc.thePlayer.isSprinting()) ||
-	        (conditionals.isEnabled("OnlySpeedPotion") && !mc.thePlayer.isPotionActive(Potion.moveSpeed)) ||
-	        (!(chance.getValue() == 1.0 || Math.random() <= chance.getValue())) ||
-	        (conditionals.isEnabled("TicksDelay") && ticks > tickDelay.getValue()) ||
-	        (conditionals.isEnabled("TradeMode") && (mc.thePlayer.hurtResistantTime > 0 || !mc.thePlayer.onGround)) ||
-	        (conditionals.isEnabled("ComboMode") && (!(mc.thePlayer.hurtResistantTime > 0) && MoveUtil.isMoving())) ||
-	        (conditionals.isEnabled("TapMode") && mc.thePlayer.moveForward == 0) ||
-	        (conditionals.isEnabled("WaterCheck") && mc.thePlayer.isInWater())) {
+	    if ((conditionals.isEnabled("OnlyMove") && !MoveUtil.isMoving()) ||
+	            (conditionals.isEnabled("OnlyWeapon") && !InventoryUtil.isSword()) ||
+	            (conditionals.isEnabled("OnlySprint") && !mc.thePlayer.isSprinting()) ||
+	            (conditionals.isEnabled("OnlySpeedPotion") && !mc.thePlayer.isPotionActive(Potion.moveSpeed)) ||
+	            (!(chance.getValue() == 1.0 || Math.random() <= chance.getValue())) ||
+	            (conditionals.isEnabled("TicksDelay") && ticks < tickDelay.getValue()) ||
+	            (conditionals.isEnabled("TradeMode") && (mc.thePlayer.hurtResistantTime > 0 || !mc.thePlayer.onGround)) ||
+	            (conditionals.isEnabled("ComboMode") && (!(mc.thePlayer.hurtResistantTime > 0) && MoveUtil.isMoving())) ||
+	            (conditionals.isEnabled("TapMode") && mc.thePlayer.moveForward == 0) ||
+	            (conditionals.isEnabled("WaterCheck") && mc.thePlayer.isInWater())) {
+	            return false;
+	        }
+
 	        ticks = 0;
-	        return false;
-	    }
 	    
 	    if (!conditionals.isEnabled("ThroughWalls") && mc.objectMouseOver != null) {
 	    	BlockPos p = mc.objectMouseOver.getBlockPos();
